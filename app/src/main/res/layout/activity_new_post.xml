@@ -21,7 +21,7 @@
     <ImageView
         android:id="@+id/new_post_image"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="270dp"
         android:contentDescription="@string/im_dsc_new_poste"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

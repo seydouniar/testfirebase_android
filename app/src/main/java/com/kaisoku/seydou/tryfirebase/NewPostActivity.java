@@ -88,8 +88,8 @@ public class NewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(1, 1)
-                        .setMinCropResultSize(512,512)
+                        .setMinCropResultSize(100,100)
+                        .setMaxCropResultSize(2000,2000)
                         .start(NewPostActivity.this);
             }
         });
@@ -102,6 +102,7 @@ public class NewPostActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(desc) && postImageUri != null) {
 
                     newPostProgress.setVisibility(View.VISIBLE);
+                    newPostBtn.setEnabled(false);
 
                     final String randomName = UUID.randomUUID().toString();
 

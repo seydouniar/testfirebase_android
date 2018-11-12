@@ -1,6 +1,5 @@
 package com.kaisoku.seydou.tryfirebase;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,41 +55,41 @@ public class MainActivity extends AppCompatActivity {
 
 
         //fragments
+        if(mAuth.getCurrentUser() != null) {
+            homeFragment = new HomeFragment();
+            noticationFragment = new NoticationFragment();
+            accountFragment = new AccountFragment();
 
-        homeFragment = new HomeFragment();
-        noticationFragment = new NoticationFragment();
-        accountFragment = new AccountFragment();
+            initializeFragment();
 
-        replaceFragment(homeFragment);
-
-        mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()){
-                    case R.id.item_home:
-                        replaceFragment(homeFragment);
-                        return true;
-                    case R.id.item_notif:
-                        replaceFragment(noticationFragment);
-                        return true;
-                    case R.id.item_account:
-                        replaceFragment(accountFragment);
-                        return true;
+            mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.item_home:
+                            replaceFragment(homeFragment);
+                            return true;
+                        case R.id.item_notif:
+                            replaceFragment(noticationFragment);
+                            return true;
+                        case R.id.item_account:
+                            replaceFragment(accountFragment);
+                            return true;
                         default:
                             return false;
+                    }
                 }
-            }
-        });
+            });
 
 
-
-        addPostBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(MainActivity.this,NewPostActivity.class);
-                startActivity(it);
-            }
-        });
+            addPostBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent it = new Intent(MainActivity.this, NewPostActivity.class);
+                    startActivity(it);
+                }
+            });
+        }
     }
 
 
@@ -164,6 +162,21 @@ public class MainActivity extends AppCompatActivity {
     private void logOut() {
         mAuth.signOut();
         sendToLogin();
+    }
+
+    private void initializeFragment(){
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        fragmentTransaction.add(R.id.main_container, homeFragment);
+        fragmentTransaction.add(R.id.main_container, noticationFragment);
+        fragmentTransaction.add(R.id.main_container, accountFragment);
+
+        fragmentTransaction.hide(noticationFragment);
+        fragmentTransaction.hide(accountFragment);
+
+        fragmentTransaction.commit();
+
     }
 
     private void replaceFragment(Fragment fragment){

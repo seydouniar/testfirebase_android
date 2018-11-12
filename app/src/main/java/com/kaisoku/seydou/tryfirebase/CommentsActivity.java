@@ -19,10 +19,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ public class CommentsActivity extends AppCompatActivity {
     private RecyclerView comment_list;
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
     private List<Comments> commentsList;
+    private List<User> userList;
 
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth firebaseAuth;
@@ -68,14 +71,15 @@ public class CommentsActivity extends AppCompatActivity {
 
         //RecyclerView Firebase List
         commentsList = new ArrayList<>();
-        commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList);
+        userList = new ArrayList<>();
+        commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList,userList,blog_post_id);
         comment_list.setHasFixedSize(true);
         comment_list.setLayoutManager(new LinearLayoutManager(this));
         comment_list.setAdapter(commentsRecyclerAdapter);
         registerForContextMenu(comment_list);
 
 
-        firebaseFirestore.collection("Posts/" + blog_post_id + "/Comments")
+        firebaseFirestore.collection("Posts/" + blog_post_id + "/Comments").orderBy("timestamp",Query.Direction.DESCENDING)
                 .addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
@@ -86,11 +90,26 @@ public class CommentsActivity extends AppCompatActivity {
 
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
 
+                                    String comment_user_id = doc.getDocument().getString("user_id");
                                     String commentId = doc.getDocument().getId();
-                                    Comments comments = doc.getDocument().toObject(Comments.class);
+                                    final Comments comments = doc.getDocument().toObject(Comments.class);
                                     comments.setComment_id(commentId);
-                                    commentsList.add(comments);
-                                    commentsRecyclerAdapter.notifyDataSetChanged();
+
+                                    firebaseFirestore.collection("Users").document(comment_user_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.isSuccessful()){
+                                                User user = task.getResult().toObject(User.class);
+                                                userList.add(user);
+                                                commentsList.add(comments);
+
+                                                commentsRecyclerAdapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
+
+
+
 
 
                                 }
